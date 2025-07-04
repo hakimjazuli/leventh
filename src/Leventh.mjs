@@ -32,7 +32,7 @@ import { qUnique as QUnique } from './qUnique.mjs';
  * const onView = ({element, unObserve, stopViewCallback}) => {
  * 	// will be triggered when element crosses `viewPort`;
  * };
- * const onExitView = ({element, unObserve, stopExitViewCallback}) => {
+ * const onExitView = ({element, unObserve, stopViewCallback, stopExitViewCallback}) => {
  * 	// will be triggered when element crosses `viewPort`;
  * };
  * ```
@@ -67,8 +67,8 @@ import { qUnique as QUnique } from './qUnique.mjs';
  *  * @param {Object} param0
  *  * @param {HTMLElement} param0.element
  *  * @param {()=>void} param0.unObserve
- *  * @param {()=>void} param0.stopExitViewCallback
  *  * @param {()=>void} param0.stopViewCallback
+ *  * @param {()=>void} param0.stopExitViewCallback
  *  * @returns {void}
  *  *[blank]/
  * ```

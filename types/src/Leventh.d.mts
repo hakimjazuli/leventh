@@ -27,7 +27,7 @@
  * const onView = ({element, unObserve, stopViewCallback}) => {
  * 	// will be triggered when element crosses `viewPort`;
  * };
- * const onExitView = ({element, unObserve, stopExitViewCallback}) => {
+ * const onExitView = ({element, unObserve, stopViewCallback, stopExitViewCallback}) => {
  * 	// will be triggered when element crosses `viewPort`;
  * };
  * ```
@@ -62,15 +62,15 @@
  *  * @param {Object} param0
  *  * @param {HTMLElement} param0.element
  *  * @param {()=>void} param0.unObserve
- *  * @param {()=>void} param0.stopExitViewCallback
  *  * @param {()=>void} param0.stopViewCallback
+ *  * @param {()=>void} param0.stopExitViewCallback
  *  * @returns {void}
  *  *[blank]/
  * ```
  */
 export class Leventh {
     /** @type {Leventh} */
-    static "__#4397@#instance": Leventh;
+    static "__#4661@#instance": Leventh;
     #private;
 }
 /**
@@ -100,6 +100,6 @@ export type viewFunction = (param0: {
 export type exitViewFunction = (param0: {
     element: HTMLElement;
     unObserve: () => void;
-    stopExitViewCallback: () => void;
     stopViewCallback: () => void;
+    stopExitViewCallback: () => void;
 }) => void;
