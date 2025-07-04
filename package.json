@@ -1,0 +1,30 @@
+{
+	"name": "leventh",
+	"version": "0.1.0",
+	"description": "the simplest inline element lifecycle library",
+	"scripts": {
+		"dev": "concurrently 'bun --watch ./dev/documentation.mjs' 'bun tsc --watch' 'bun run dv' 'bun run bd'",
+		"bd": "bun build ./dev/leventh.mjs --outfile ./dist/leventh.min.mjs --format esm --minify --watch",
+		"dv": "bun build ./dev/leventh.mjs --outfile ./dist/leventh.mjs --format esm --watch"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/hakimjazuli/leventh.git"
+	},
+	"keywords": [
+		"element-lifecycle",
+		"browser-lifecycle"
+	],
+	"author": "hakim_jazuli",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/hakimjazuli/leventh/issues"
+	},
+	"homepage": "https://github.com/hakimjazuli/leventh#readme",
+	"dependencies": {
+		"concurrently": "^9.2.0"
+	},
+	"devDependencies": {
+		"@html_first/js_lib_template": "^2.0.17"
+	}
+}
