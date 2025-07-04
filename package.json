@@ -12,8 +12,9 @@
 		"url": "git+https://github.com/hakimjazuli/leventh.git"
 	},
 	"keywords": [
-		"element-lifecycle",
-		"browser-lifecycle"
+		"element lifecycle",
+		"simple lifecycle",
+		"client side"
 	],
 	"author": "hakim_jazuli",
 	"license": "MIT",
