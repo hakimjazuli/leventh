@@ -28,7 +28,7 @@
  * 	// will be triggered when element crosses `viewPort`;
  * };
  * const onExitView = ({element, unObserve, stopViewCallback, stopExitViewCallback}) => {
- * 	// will be triggered when element crosses `viewPort`;
+ * 	// will be triggered when element exit `viewPort`;
  * };
  * ```
  * - by doing this, you can allways uses same function for multiple element, especially with some conditional with it's `attributeName` & `attributeValue`;
@@ -70,7 +70,7 @@
  */
 export class Leventh {
     /** @type {Leventh} */
-    static "__#4661@#instance": Leventh;
+    static "__#4793@#instance": Leventh;
     #private;
 }
 /**
