@@ -41,7 +41,7 @@
  *  * @returns {void}
  *  *[blank]/
  * /**
- *  * @callback attrChangedFunction
+ *  * @callback onAttrChangedFunction
  *  * @param {Object} param0
  *  * @param {HTMLElement} param0.element
  *  * @param {string} param0.attributeName
@@ -50,7 +50,7 @@
  *  * @returns {void}
  *  *[blank]/
  * /**
- *  * @callback viewFunction
+ *  * @callback onViewFunction
  *  * @param {Object} param0
  *  * @param {HTMLElement} param0.element
  *  * @param {()=>void} param0.unObserve
@@ -58,7 +58,7 @@
  *  * @returns {void}
  *  *[blank]/
  * /**
- *  * @callback exitViewFunction
+ *  * @callback onExitViewFunction
  *  * @param {Object} param0
  *  * @param {HTMLElement} param0.element
  *  * @param {()=>void} param0.unObserve
@@ -70,7 +70,7 @@
  */
 export class Leventh {
     /** @type {Leventh} */
-    static "__#4793@#instance": Leventh;
+    static "__#4925@#instance": Leventh;
     #private;
 }
 /**
@@ -80,7 +80,7 @@ export type onLoad_onUnloadFunction = (element: HTMLElement) => void;
 /**
  * *
  */
-export type attrChangedFunction = (param0: {
+export type onAttrChangedFunction = (param0: {
     element: HTMLElement;
     attributeName: string;
     newValue: string;
@@ -89,7 +89,7 @@ export type attrChangedFunction = (param0: {
 /**
  * *
  */
-export type viewFunction = (param0: {
+export type onViewFunction = (param0: {
     element: HTMLElement;
     unObserve: () => void;
     stopViewCallback: () => void;
@@ -97,7 +97,7 @@ export type viewFunction = (param0: {
 /**
  * *
  */
-export type exitViewFunction = (param0: {
+export type onExitViewFunction = (param0: {
     element: HTMLElement;
     unObserve: () => void;
     stopViewCallback: () => void;

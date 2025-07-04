@@ -46,7 +46,7 @@ import { qUnique as QUnique } from './qUnique.mjs';
  *  * @returns {void}
  *  *[blank]/
  * /**
- *  * @callback attrChangedFunction
+ *  * @callback onAttrChangedFunction
  *  * @param {Object} param0
  *  * @param {HTMLElement} param0.element
  *  * @param {string} param0.attributeName
@@ -55,7 +55,7 @@ import { qUnique as QUnique } from './qUnique.mjs';
  *  * @returns {void}
  *  *[blank]/
  * /**
- *  * @callback viewFunction
+ *  * @callback onViewFunction
  *  * @param {Object} param0
  *  * @param {HTMLElement} param0.element
  *  * @param {()=>void} param0.unObserve
@@ -63,7 +63,7 @@ import { qUnique as QUnique } from './qUnique.mjs';
  *  * @returns {void}
  *  *[blank]/
  * /**
- *  * @callback exitViewFunction
+ *  * @callback onExitViewFunction
  *  * @param {Object} param0
  *  * @param {HTMLElement} param0.element
  *  * @param {()=>void} param0.unObserve
