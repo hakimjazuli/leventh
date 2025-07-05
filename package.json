@@ -1,6 +1,6 @@
 {
 	"name": "leventh",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "the simplest inline element lifecycle library",
 	"scripts": {
 		"dev": "concurrently 'bun --watch ./dev/documentation.mjs' 'bun tsc --watch' 'bun run dv' 'bun run bd'",
