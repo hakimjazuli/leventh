@@ -41,16 +41,7 @@
  * window['leventh']['onExitView'] = ({element, unObserve, stopViewCallback, stopExitViewCallback}) => {};
  * ```
  * >- OR with bundler approach [setLeventh](#setleventh):
- * ```js
- * import { setLeventh } from 'leventh';
- * // this approach gave you direct typehint too;
- * setLeventh('onLoad', (element) => {}, 'load')
- * setLeventh('onUnload', (element) => {}, 'unload')
- * setLeventh('onAttrChanged', ({element, attributeName, newValue, oldValue}) => {}, 'attrChanged')
- * setLeventh('onView', ({element, unObserve, stopViewCallback}) => {}, 'view')
- * setLeventh('onExitView', ({element, unObserve, stopViewCallback, stopExitViewCallback}) => {}, 'exitView')
- * ```
- *>>- by doing this, you can allways uses same function for multiple element, especially with some conditional with it's `attributeName` & `attributeValue`;
+ * >>- by doing this, you can allways uses same function for multiple element, especially with some conditional with it's `attributeName` & `attributeValue`;
  */
 export class Leventh {
     /** @type {Leventh} */
