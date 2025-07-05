@@ -12,6 +12,17 @@ class callbacks {
   ac;
 }
 
+// src/getLeventh.export.mjs
+var getLeventh = (key, type) => {
+  if (!window["leventh"]) {
+    window["leventh"] = {};
+  }
+  if (!(key in window["leventh"])) {
+    window["leventh"][key] = undefined;
+  }
+  return window["leventh"][key];
+};
+
 // src/qUnique.mjs
 class qUnique {
   static #timeout = (ms) => new Promise((resolve) => {
@@ -90,40 +101,80 @@ class Leventh {
       return;
     }
     try {
-      const unloadScript = element.getAttribute(this.#onUnloadAttr);
+      let unloadScript = element.getAttribute(this.#onUnloadAttr);
       element.removeAttribute(this.#onUnloadAttr);
-      const attrChangedScript = element.getAttribute(this.#onAttrChangedAttr);
+      let attrChangedScript = element.getAttribute(this.#onAttrChangedAttr);
       element.removeAttribute(this.#onAttrChangedAttr);
-      const viewScript = element.getAttribute(this.#onViewAttr);
+      let viewScript = element.getAttribute(this.#onViewAttr);
       element.removeAttribute(this.#onViewAttr);
-      const exitViewScript = element.getAttribute(this.#onExitViewAttr);
+      let exitViewScript = element.getAttribute(this.#onExitViewAttr);
       element.removeAttribute(this.#onExitViewAttr);
       if ((unloadScript || attrChangedScript || viewScript || exitViewScript) && !this.#mappedLifecycle.has(element)) {
+        const stopExitViewCallback = () => {
+          const mapped = this.#mappedLifecycle.get(element);
+          if (!mapped) {
+            return;
+          }
+          mapped.xv = undefined;
+        };
+        const stopViewCallback = () => {
+          const mapped = this.#mappedLifecycle.get(element);
+          if (!mapped) {
+            return;
+          }
+          mapped.v = undefined;
+        };
         const registerXv = () => {
           const ref = this.#mappedLifecycle.get(element);
           if (!ref) {
             return;
           }
-          ref.xv = exitViewScript ? new Function("unObserve", "stopExitViewCallback", `stopViewCallback`, `${exitViewScript}({element:this,unObserve,stopExitViewCallback,stopViewCallback})`).bind(element, () => this.#unobserveIntersection(element), () => {
-            const mapped = this.#mappedLifecycle.get(element);
-            if (!mapped) {
-              return;
-            }
-            mapped.xv = undefined;
-            mapped.v = undefined;
-          }) : undefined;
+          if (!exitViewScript) {
+            ref.xv = undefined;
+            return;
+          }
+          const handler = getLeventh(exitViewScript, "exitView");
+          const unObserve = () => this.#unobserveIntersection(element);
+          if (handler) {
+            ref.xv = () => ref.xv = () => handler({ element, stopExitViewCallback, stopViewCallback, unObserve });
+            return;
+          }
+          new Function("unObserve", "stopExitViewCallback", `stopViewCallback`, `${exitViewScript}({element:this,unObserve,stopExitViewCallback,stopViewCallback})`).call(element, unObserve, stopExitViewCallback, stopViewCallback);
         };
-        this.#mappedLifecycle.set(element, new callbacks({
-          dc: unloadScript ? () => {
-            new Function(`${unloadScript}(this)`).bind(element);
-          } : undefined,
-          ac: attrChangedScript ? (attributeName, newValue, oldValue) => new Function("attributeName", "newValue", "oldValue", `${attrChangedScript}({element:this,attributeName,newValue,oldValue})`).call(element, attributeName, newValue, oldValue) : undefined,
-          v: () => {
-            registerXv();
-            if (!viewScript) {
-              return;
-            }
-            new Function("unObserve", `stopViewCallback`, `${viewScript}({element:this,unObserve,stopViewCallback})`).call(element, () => this.#unobserveIntersection(element), () => {
+        let dcHandler = undefined;
+        if (unloadScript) {
+          const handler = getLeventh(unloadScript, "unload");
+          if (!handler) {
+            dcHandler = () => new Function(`${unloadScript}(this)`).call(element);
+          } else {
+            dcHandler = () => handler(element);
+          }
+        }
+        let acHandler = undefined;
+        if (attrChangedScript) {
+          const handler = getLeventh(attrChangedScript, "attrChanged");
+          if (handler) {
+            acHandler = (attributeName, newValue, oldValue) => {
+              handler({ element, attributeName, newValue, oldValue });
+            };
+          } else {
+            acHandler = (attributeName, newValue, oldValue) => {
+              new Function("attributeName", "newValue", "oldValue", `${attrChangedScript}({element:this,attributeName,newValue,oldValue})`).call(element, attributeName, newValue, oldValue);
+            };
+          }
+        }
+        let vHandler = undefined;
+        if (viewScript) {
+          registerXv();
+          const handler = getLeventh(viewScript, "view");
+          if (handler) {
+            vHandler = () => handler({
+              element,
+              stopViewCallback,
+              unObserve: () => this.#unobserveIntersection(element)
+            });
+          } else {
+            vHandler = () => new Function("unObserve", `stopViewCallback`, `${viewScript}({element:this,unObserve,stopViewCallback})`).call(element, () => this.#unobserveIntersection(element), () => {
               const mapped = this.#mappedLifecycle.get(element);
               if (!mapped) {
                 return;
@@ -131,6 +182,11 @@ class Leventh {
               mapped.v = undefined;
             });
           }
+        }
+        this.#mappedLifecycle.set(element, new callbacks({
+          dc: dcHandler,
+          ac: acHandler,
+          v: vHandler
         }));
         if (viewScript || exitViewScript) {
           this.#observeIntersection(element);
@@ -139,6 +195,11 @@ class Leventh {
       const onloadScript = element.getAttribute(this.#onloadAttr);
       element.removeAttribute(this.#onloadAttr);
       if (!onloadScript) {
+        return;
+      }
+      const loadHandler = getLeventh(onloadScript, "load");
+      if (loadHandler) {
+        loadHandler(element);
         return;
       }
       new Function(`${onloadScript}(this)`).call(element);

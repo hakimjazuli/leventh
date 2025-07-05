@@ -10,8 +10,8 @@
  *		lvn:exit-view="onExitView"
  * ></div>
  * ```
- *- the variable need to be global, to be referenced by `Leventh`;
- *- you can even declare it on the html `scriptTag` if necessary;
+ *- to be referenced by `Leventh`, the variable need to be;
+ *>- `global`, you can even declare it on the html `scriptTag` if necessary:
  * ```js
  * // arbitrary const name for semantics examples,
  * // you can name them as you wishes;
@@ -31,75 +31,29 @@
  * 	// will be triggered when element exit `viewPort`;
  * };
  * ```
- * - by doing this, you can allways uses same function for multiple element, especially with some conditional with it's `attributeName` & `attributeValue`;
- * ### `typehelpers`
+ * >- OR if you don't want to polute global namespace;
  * ```js
- * // @ts-check
- * /**
- *  * @callback onLoad_onUnloadFunction
- *  * @param {HTMLElement} element
- *  * @returns {void}
- *  *[blank]/
- * /**
- *  * @callback onAttrChangedFunction
- *  * @param {Object} param0
- *  * @param {HTMLElement} param0.element
- *  * @param {string} param0.attributeName
- *  * @param {string} param0.newValue
- *  * @param {string} param0.oldValue
- *  * @returns {void}
- *  *[blank]/
- * /**
- *  * @callback onViewFunction
- *  * @param {Object} param0
- *  * @param {HTMLElement} param0.element
- *  * @param {()=>void} param0.unObserve
- *  * @param {()=>void} param0.stopViewCallback
- *  * @returns {void}
- *  *[blank]/
- * /**
- *  * @callback onExitViewFunction
- *  * @param {Object} param0
- *  * @param {HTMLElement} param0.element
- *  * @param {()=>void} param0.unObserve
- *  * @param {()=>void} param0.stopViewCallback
- *  * @param {()=>void} param0.stopExitViewCallback
- *  * @returns {void}
- *  *[blank]/
+ * window['levent'] = {};
+ * window['leventh']['onLoad'] = (element) => {};
+ * window['leventh']['onUnload'] = (element) => {};
+ * window['leventh']['onAttrChanged'] = ({element, attributeName, newValue, oldValue}) => {};
+ * window['leventh']['onView'] = ({element, unObserve, stopViewCallback}) => {};
+ * window['leventh']['onExitView'] = ({element, unObserve, stopViewCallback, stopExitViewCallback}) => {};
  * ```
+ * >- OR with bundler approach [setLeventh](#setleventh):
+ * ```js
+ * import { setLeventh } from 'leventh';
+ * // this approach gave you direct typehint too;
+ * setLeventh('onLoad', (element) => {}, 'load')
+ * setLeventh('onUnload', (element) => {}, 'unload')
+ * setLeventh('onAttrChanged', ({element, attributeName, newValue, oldValue}) => {}, 'attrChanged')
+ * setLeventh('onView', ({element, unObserve, stopViewCallback}) => {}, 'view')
+ * setLeventh('onExitView', ({element, unObserve, stopViewCallback, stopExitViewCallback}) => {}, 'exitView')
+ * ```
+ *>>- by doing this, you can allways uses same function for multiple element, especially with some conditional with it's `attributeName` & `attributeValue`;
  */
 export class Leventh {
     /** @type {Leventh} */
-    static "__#4925@#instance": Leventh;
+    static "__#2@#instance": Leventh;
     #private;
 }
-/**
- * *
- */
-export type onLoad_onUnloadFunction = (element: HTMLElement) => void;
-/**
- * *
- */
-export type onAttrChangedFunction = (param0: {
-    element: HTMLElement;
-    attributeName: string;
-    newValue: string;
-    oldValue: string;
-}) => void;
-/**
- * *
- */
-export type onViewFunction = (param0: {
-    element: HTMLElement;
-    unObserve: () => void;
-    stopViewCallback: () => void;
-}) => void;
-/**
- * *
- */
-export type onExitViewFunction = (param0: {
-    element: HTMLElement;
-    unObserve: () => void;
-    stopViewCallback: () => void;
-    stopExitViewCallback: () => void;
-}) => void;

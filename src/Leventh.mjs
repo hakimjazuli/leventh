@@ -1,6 +1,7 @@
 // @ts-check
 
 import { callbacks as Callbacks } from './callbacks.mjs';
+import { getLeventh } from './getLeventh.export.mjs';
 import { qUnique as QUnique } from './qUnique.mjs';
 
 /**
@@ -15,8 +16,8 @@ import { qUnique as QUnique } from './qUnique.mjs';
  *		lvn:exit-view="onExitView"
  * ></div>
  * ```
- *- the variable need to be global, to be referenced by `Leventh`;
- *- you can even declare it on the html `scriptTag` if necessary;
+ *- to be referenced by `Leventh`, the variable need to be;
+ *>- `global`, you can even declare it on the html `scriptTag` if necessary:
  * ```js
  * // arbitrary const name for semantics examples,
  * // you can name them as you wishes;
@@ -36,42 +37,26 @@ import { qUnique as QUnique } from './qUnique.mjs';
  * 	// will be triggered when element exit `viewPort`;
  * };
  * ```
- * - by doing this, you can allways uses same function for multiple element, especially with some conditional with it's `attributeName` & `attributeValue`;
- * ### `typehelpers`
+ * >- OR if you don't want to polute global namespace;
  * ```js
- * // @ts-check
- * /**
- *  * @callback onLoad_onUnloadFunction
- *  * @param {HTMLElement} element
- *  * @returns {void}
- *  *[blank]/
- * /**
- *  * @callback onAttrChangedFunction
- *  * @param {Object} param0
- *  * @param {HTMLElement} param0.element
- *  * @param {string} param0.attributeName
- *  * @param {string} param0.newValue
- *  * @param {string} param0.oldValue
- *  * @returns {void}
- *  *[blank]/
- * /**
- *  * @callback onViewFunction
- *  * @param {Object} param0
- *  * @param {HTMLElement} param0.element
- *  * @param {()=>void} param0.unObserve
- *  * @param {()=>void} param0.stopViewCallback
- *  * @returns {void}
- *  *[blank]/
- * /**
- *  * @callback onExitViewFunction
- *  * @param {Object} param0
- *  * @param {HTMLElement} param0.element
- *  * @param {()=>void} param0.unObserve
- *  * @param {()=>void} param0.stopViewCallback
- *  * @param {()=>void} param0.stopExitViewCallback
- *  * @returns {void}
- *  *[blank]/
+ * window['levent'] = {};
+ * window['leventh']['onLoad'] = (element) => {};
+ * window['leventh']['onUnload'] = (element) => {};
+ * window['leventh']['onAttrChanged'] = ({element, attributeName, newValue, oldValue}) => {};
+ * window['leventh']['onView'] = ({element, unObserve, stopViewCallback}) => {};
+ * window['leventh']['onExitView'] = ({element, unObserve, stopViewCallback, stopExitViewCallback}) => {};
  * ```
+ * >- OR with bundler approach [setLeventh](#setleventh):
+ * ```js
+ * import { setLeventh } from 'leventh';
+ * // this approach gave you direct typehint too;
+ * setLeventh('onLoad', (element) => {}, 'load')
+ * setLeventh('onUnload', (element) => {}, 'unload')
+ * setLeventh('onAttrChanged', ({element, attributeName, newValue, oldValue}) => {}, 'attrChanged')
+ * setLeventh('onView', ({element, unObserve, stopViewCallback}) => {}, 'view')
+ * setLeventh('onExitView', ({element, unObserve, stopViewCallback, stopExitViewCallback}) => {}, 'exitView')
+ * ```
+ *>>- by doing this, you can allways uses same function for multiple element, especially with some conditional with it's `attributeName` & `attributeValue`;
  */
 export class Leventh {
 	/** @type {Leventh} */
@@ -143,70 +128,96 @@ export class Leventh {
 			return;
 		}
 		try {
-			const unloadScript = element.getAttribute(this.#onUnloadAttr);
+			let unloadScript = element.getAttribute(this.#onUnloadAttr);
 			element.removeAttribute(this.#onUnloadAttr);
-			const attrChangedScript = element.getAttribute(this.#onAttrChangedAttr);
+			let attrChangedScript = element.getAttribute(this.#onAttrChangedAttr);
 			element.removeAttribute(this.#onAttrChangedAttr);
-			const viewScript = element.getAttribute(this.#onViewAttr);
+			let viewScript = element.getAttribute(this.#onViewAttr);
 			element.removeAttribute(this.#onViewAttr);
-			const exitViewScript = element.getAttribute(this.#onExitViewAttr);
+			let exitViewScript = element.getAttribute(this.#onExitViewAttr);
 			element.removeAttribute(this.#onExitViewAttr);
 			if (
 				(unloadScript || attrChangedScript || viewScript || exitViewScript) &&
 				!this.#mappedLifecycle.has(element)
 			) {
+				const stopExitViewCallback = () => {
+					const mapped = this.#mappedLifecycle.get(element);
+					if (!mapped) {
+						return;
+					}
+					mapped.xv = undefined;
+				};
+				const stopViewCallback = () => {
+					const mapped = this.#mappedLifecycle.get(element);
+					if (!mapped) {
+						return;
+					}
+					mapped.v = undefined;
+				};
 				const registerXv = () => {
 					const ref = this.#mappedLifecycle.get(element);
 					if (!ref) {
 						return;
 					}
-					ref.xv = exitViewScript
-						? new Function(
-								'unObserve',
-								'stopExitViewCallback',
-								`stopViewCallback`,
-								`${exitViewScript}({element:this,unObserve,stopExitViewCallback,stopViewCallback})`
-						  ).bind(
-								element,
-								() => this.#unobserveIntersection(element),
-								() => {
-									const mapped = this.#mappedLifecycle.get(element);
-									if (!mapped) {
-										return;
-									}
-									mapped.xv = undefined;
-									mapped.v = undefined;
-								}
-						  )
-						: undefined;
+					if (!exitViewScript) {
+						ref.xv = undefined;
+						return;
+					}
+					const handler = getLeventh(exitViewScript, 'exitView');
+					const unObserve = () => this.#unobserveIntersection(element);
+					if (handler) {
+						ref.xv = () =>
+							(ref.xv = () =>
+								handler({ element, stopExitViewCallback, stopViewCallback, unObserve }));
+						return;
+					}
+					new Function(
+						'unObserve',
+						'stopExitViewCallback',
+						`stopViewCallback`,
+						`${exitViewScript}({element:this,unObserve,stopExitViewCallback,stopViewCallback})`
+					).call(element, unObserve, stopExitViewCallback, stopViewCallback);
 				};
-				this.#mappedLifecycle.set(
-					element,
-					new Callbacks({
-						dc: unloadScript
-							? () => {
-									new Function(`${unloadScript}(this)`).bind(element);
-							  }
-							: undefined,
-						ac: attrChangedScript
-							? /**
-							   * @param {string} attributeName
-							   * @param {string} newValue
-							   * @param {string} oldValue
-							   */
-							  (attributeName, newValue, oldValue) =>
-									new Function(
-										'attributeName',
-										'newValue',
-										'oldValue',
-										`${attrChangedScript}({element:this,attributeName,newValue,oldValue})`
-									).call(element, attributeName, newValue, oldValue)
-							: undefined,
-						v: () => {
-							registerXv();
-							if (!viewScript) {
-								return;
-							}
+				let dcHandler = undefined;
+				if (unloadScript) {
+					const handler = getLeventh(unloadScript, 'unload');
+					if (!handler) {
+						dcHandler = () => new Function(`${unloadScript}(this)`).call(element);
+					} else {
+						dcHandler = () => handler(element);
+					}
+				}
+				let acHandler = undefined;
+				if (attrChangedScript) {
+					const handler = getLeventh(attrChangedScript, 'attrChanged');
+					if (handler) {
+						acHandler = (attributeName, newValue, oldValue) => {
+							handler({ element, attributeName, newValue, oldValue });
+						};
+					} else {
+						acHandler = (attributeName, newValue, oldValue) => {
+							new Function(
+								'attributeName',
+								'newValue',
+								'oldValue',
+								`${attrChangedScript}({element:this,attributeName,newValue,oldValue})`
+							).call(element, attributeName, newValue, oldValue);
+						};
+					}
+				}
+				let vHandler = undefined;
+				if (viewScript) {
+					registerXv();
+					const handler = getLeventh(viewScript, 'view');
+					if (handler) {
+						vHandler = () =>
+							handler({
+								element,
+								stopViewCallback,
+								unObserve: () => this.#unobserveIntersection(element),
+							});
+					} else {
+						vHandler = () =>
 							new Function(
 								'unObserve',
 								`stopViewCallback`,
@@ -222,7 +233,14 @@ export class Leventh {
 									mapped.v = undefined;
 								}
 							);
-						},
+					}
+				}
+				this.#mappedLifecycle.set(
+					element,
+					new Callbacks({
+						dc: dcHandler,
+						ac: acHandler,
+						v: vHandler,
 					})
 				);
 				if (viewScript || exitViewScript) {
@@ -232,6 +250,11 @@ export class Leventh {
 			const onloadScript = element.getAttribute(this.#onloadAttr);
 			element.removeAttribute(this.#onloadAttr);
 			if (!onloadScript) {
+				return;
+			}
+			const loadHandler = getLeventh(onloadScript, 'load');
+			if (loadHandler) {
+				loadHandler(element);
 				return;
 			}
 			new Function(`${onloadScript}(this)`).call(element);

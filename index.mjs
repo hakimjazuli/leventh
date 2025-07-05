@@ -10,7 +10,7 @@
  * - the only abstraction `Leventh` provided is for common `elementLifecycle` that are common on `native` `webComponent`;
  * >- `connectedCallback` -> `lvn:load`;
  * >- `disconnectedCallback` -> `lvn:unload`;
- * >- `attributechangedcallback` -> `lvn:attr-chaged`;
+ * >- `attributeChangedcallback` -> `lvn:attr-chaged`;
  * >- `crossingViewPort` -> `lvn:view`;
  * >- `exittingViewPort` -> `lvn:exit-view`;
  * - the core point is simplicity of piece of 🍰 without adding too much abstraction;
@@ -61,4 +61,6 @@
  * ```
  * 
  */
+export { getLeventh } from './src/getLeventh.export.mjs';
 export { Leventh } from './src/Leventh.mjs';
+export { setLeventh } from './src/setLeventh.export.mjs';

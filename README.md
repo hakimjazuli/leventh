@@ -3,7 +3,7 @@
 - the only abstraction `Leventh` provided is for common `elementLifecycle` that are common on `native` `webComponent`;
 >- `connectedCallback` -> `lvn:load`;
 >- `disconnectedCallback` -> `lvn:unload`;
->- `attributechangedcallback` -> `lvn:attr-chaged`;
+>- `attributeChangedcallback` -> `lvn:attr-chaged`;
 >- `crossingViewPort` -> `lvn:view`;
 >- `exittingViewPort` -> `lvn:exit-view`;
 - the core point is simplicity of piece of 🍰 without adding too much abstraction;
@@ -54,9 +54,23 @@
 ```
 
 ## helpers
+- [getLeventh](#getleventh)
 - [Leventh](#leventh)
+- [setLeventh](#setleventh)
+<h2 id="getleventh">getLeventh</h2>
+
+- helper function for internal typings;- you can also use this `typehelpers` for no-bundlers approach:```js// @ts-check/** * @callback onLoad_onUnloadFunction * @param {HTMLElement} element * @returns {void} *//** * @callback onAttrChangedFunction * @param {Object} param0 * @param {HTMLElement} param0.element * @param {string} param0.attributeName * @param {string} param0.newValue * @param {string} param0.oldValue * @returns {void} *//** * @callback onViewFunction * @param {Object} param0 * @param {HTMLElement} param0.element * @param {()=>void} param0.unObserve * @param {()=>void} param0.stopViewCallback * @returns {void} *//** * @callback onExitViewFunction * @param {Object} param0 * @param {HTMLElement} param0.element * @param {()=>void} param0.unObserve * @param {()=>void} param0.stopViewCallback * @param {()=>void} param0.stopExitViewCallback * @returns {void} */```
+
+*) <sub>[go to exported list](#helpers)</sub>
+
 <h2 id="leventh">Leventh</h2>
 
-- `namespaced` attibute to prevent clash with other library you might install, all `attributeNameHandlers` ar previxed with `"lvn:"`;```html<div	lvn:load="onLoad"	lvn:unload="onUnload"	lvn:attr-changed="onAttrChanged"	lvn:view="onView"	lvn:exit-view="onExitView"></div>```- the variable need to be global, to be referenced by `Leventh`;- you can even declare it on the html `scriptTag` if necessary;```js// arbitrary const name for semantics examples,// you can name them as you wishes;const onLoad = (element) => {	// will be triggered when element is loaded to the DOM;};const onUnload = (element) => {	// will be triggered when element is unloaded from the DOM;};const onAttrChanged = ({element, attributeName, newValue, oldValue}) => {	// will be triggered when element attributeValue/attributeNamespaceValue/attributeName/attributeNamespace changed;};const onView = ({element, unObserve, stopViewCallback}) => {	// will be triggered when element crosses `viewPort`;};const onExitView = ({element, unObserve, stopViewCallback, stopExitViewCallback}) => {	// will be triggered when element exit `viewPort`;};```- by doing this, you can allways uses same function for multiple element, especially with some conditional with it's `attributeName` & `attributeValue`;### `typehelpers````js// @ts-check/** * @callback onLoad_onUnloadFunction * @param {HTMLElement} element * @returns {void} *//** * @callback onAttrChangedFunction * @param {Object} param0 * @param {HTMLElement} param0.element * @param {string} param0.attributeName * @param {string} param0.newValue * @param {string} param0.oldValue * @returns {void} *//** * @callback onViewFunction * @param {Object} param0 * @param {HTMLElement} param0.element * @param {()=>void} param0.unObserve * @param {()=>void} param0.stopViewCallback * @returns {void} *//** * @callback onExitViewFunction * @param {Object} param0 * @param {HTMLElement} param0.element * @param {()=>void} param0.unObserve * @param {()=>void} param0.stopViewCallback * @param {()=>void} param0.stopExitViewCallback * @returns {void} */```
+- `namespaced` attibute to prevent clash with other library you might install, all `attributeNameHandlers` ar previxed with `"lvn:"`;```html<div	lvn:load="onLoad"	lvn:unload="onUnload"	lvn:attr-changed="onAttrChanged"	lvn:view="onView"	lvn:exit-view="onExitView"></div>```- to be referenced by `Leventh`, the variable need to be;>- `global`, you can even declare it on the html `scriptTag` if necessary:```js// arbitrary const name for semantics examples,// you can name them as you wishes;const onLoad = (element) => {	// will be triggered when element is loaded to the DOM;};const onUnload = (element) => {	// will be triggered when element is unloaded from the DOM;};const onAttrChanged = ({element, attributeName, newValue, oldValue}) => {	// will be triggered when element attributeValue/attributeNamespaceValue/attributeName/attributeNamespace changed;};const onView = ({element, unObserve, stopViewCallback}) => {	// will be triggered when element crosses `viewPort`;};const onExitView = ({element, unObserve, stopViewCallback, stopExitViewCallback}) => {	// will be triggered when element exit `viewPort`;};```>- OR if you don't want to polute global namespace;```jswindow['levent'] = {};window['leventh']['onLoad'] = (element) => {};window['leventh']['onUnload'] = (element) => {};window['leventh']['onAttrChanged'] = ({element, attributeName, newValue, oldValue}) => {};window['leventh']['onView'] = ({element, unObserve, stopViewCallback}) => {};window['leventh']['onExitView'] = ({element, unObserve, stopViewCallback, stopExitViewCallback}) => {};```>- OR with bundler approach [setLeventh](#setleventh):```jsimport { setLeventh } from 'leventh';// this approach gave you direct typehint too;setLeventh('onLoad', (element) => {}, 'load')setLeventh('onUnload', (element) => {}, 'unload')setLeventh('onAttrChanged', ({element, attributeName, newValue, oldValue}) => {}, 'attrChanged')setLeventh('onView', ({element, unObserve, stopViewCallback}) => {}, 'view')setLeventh('onExitView', ({element, unObserve, stopViewCallback, stopExitViewCallback}) => {}, 'exitView')```>>- by doing this, you can allways uses same function for multiple element, especially with some conditional with it's `attributeName` & `attributeValue`;
+
+*) <sub>[go to exported list](#helpers)</sub>
+
+<h2 id="setleventh">setLeventh</h2>
+
+- this function is registrar for leventh reference;- it is just fancy way to register them on `window['leventh']`;- typed for which kind of event you want to register them as;
 
 *) <sub>[go to exported list](#helpers)</sub>
